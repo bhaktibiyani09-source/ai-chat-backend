@@ -1,36 +1,36 @@
-{\rtf1\ansi\ansicpg1252\cocoartf2867
-\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
-{\colortbl;\red255\green255\blue255;}
-{\*\expandedcolortbl;;}
-\paperw11900\paperh16840\margl1440\margr1440\vieww19980\viewh14160\viewkind0
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
 
-\f0\fs24 \cf0 export default async function handler(req, res) \{\
-  if (req.method !== "POST") \{\
-    return res.status(405).json(\{ error: "Method not allowed" \});\
-  \}\
-\
-  try \{\
-    const response = await fetch("https://api.openai.com/v1/chat/completions", \{\
-      method: "POST",\
-      headers: \{\
-        "Authorization": `Bearer $\{process.env.OPENAI_API_KEY\}`,\
-        "Content-Type": "application/json",\
-      \},\
-      body: JSON.stringify(\{\
-        model: "gpt-4o-mini",\
-        messages: [\
-          \{ role: "system", content: "You are a helpful assistant." \},\
-          \{ role: "user", content: req.body.message \},\
-        ],\
-      \}),\
-    \});\
-\
-    const data = await response.json();\
-    res.status(200).json(\{ reply: data.choices[0].message.content \});\
-\
-  \} catch (error) \{\
-    res.status(500).json(\{ error: "Something went wrong" \});\
-  \}\
-\}\
+  try {
+    const response = await fetch(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [
+            { role: "system", content: "You are a helpful assistant." },
+            { role: "user", content: req.body.message || "Hello" },
+          ],
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    return res.status(200).json({
+      reply: data.choices?.[0]?.message?.content || "No response",
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      error: error.message,
+    });
+  }
 }
